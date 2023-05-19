@@ -5,8 +5,8 @@ from loader import db
 menu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Registratsiya"),
-            KeyboardButton(text="Excel")
+            KeyboardButton(text="📝 Registratsiya"),
+            KeyboardButton(text="📊 Excel")
         ]
     ], resize_keyboard=True
 )

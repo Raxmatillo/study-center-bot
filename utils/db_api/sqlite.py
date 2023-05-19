@@ -131,6 +131,8 @@ class Database:
         ('Ing tili B'),
         ('Ing tili C'),
         ('Ing tili D'),
+	('IELST'),
+	('CEFR'),
         
         ('Rus tili A'),
         ('Rus tili B'),

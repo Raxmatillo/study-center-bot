@@ -23,7 +23,7 @@ class PupilState(StatesGroup):
 
 
 
-@dp.message_handler(AdminFilter(), text="Excel")
+@dp.message_handler(AdminFilter(), text="📊 Excel")
 async def send_excel(message: types.Message):
     conn = sqlite3.connect('data/main.db')
     df = pd.read_sql_query("SELECT group_type, block_1, block_2, full_name, payment FROM users", conn)
@@ -35,13 +35,13 @@ async def send_excel(message: types.Message):
     await message.answer_document(document=file, caption=f"{date.hour}:{date.minute}\t{date.day}/{date.month}/{date.year}")
 
 
-@dp.message_handler(AdminFilter(), text="Registratsiya")
+@dp.message_handler(AdminFilter(), text="📝 Registratsiya")
 async def register_user(message: types.Message):
     markup = await group_keyboards()
     await message.answer("Gurux tanlang", reply_markup=markup)
     await PupilState.group.set()
 
-@dp.message_handler(AdminFilter(), state=PupilState.group)
+@dp.message_handler(AdminFilter(), state=PupilState.group, content_types='text')
 async def get_group(message: types.Message, state: FSMContext):
     groups = db.get_groups()
     for group in groups:
@@ -53,10 +53,11 @@ async def get_group(message: types.Message, state: FSMContext):
             await PupilState.block_1.set()
             break
     else:
-        await message.answer("❗️ Iltimos, quyidagilardan birini tanlang!", reply_markup=menu)
+        await message.answer("❗️ Iltimos, quyidagilardan birini tanlang!")
 
 
-@dp.message_handler(AdminFilter(), state=PupilState.block_1)
+
+@dp.message_handler(AdminFilter(), state=PupilState.block_1, content_types='text')
 async def get_block_1(message: types.Message, state: FSMContext):
     blocks = db.get_blocks()
     for block in blocks:
@@ -66,10 +67,10 @@ async def get_block_1(message: types.Message, state: FSMContext):
             await PupilState.block_2.set()
             break
     else:
-        await message.answer("❗️ Iltimos, quyidagilardan birini tanlang!", reply_markup=menu)
+        await message.answer("❗️ Iltimos, quyidagilardan birini tanlang!")
 
 
-@dp.message_handler(AdminFilter(), state=PupilState.block_2)
+@dp.message_handler(AdminFilter(), state=PupilState.block_2, content_types='text')
 async def get_block_1(message: types.Message, state: FSMContext):
     blocks = db.get_blocks()
     for block in blocks:
@@ -79,17 +80,17 @@ async def get_block_1(message: types.Message, state: FSMContext):
             await PupilState.full_name.set()
             break
     else:
-        await message.answer("❗️ Iltimos, quyidagilardan birini tanlang!", reply_markup=menu)
+        await message.answer("❗️ Iltimos, quyidagilardan birini tanlang!")
 
 
-@dp.message_handler(AdminFilter(), state=PupilState.full_name)
+@dp.message_handler(AdminFilter(), state=PupilState.full_name, content_types='text')
 async def get_full_name(message: types.Message, state: FSMContext):
     await state.update_data(full_name=message.text)
     await message.answer("To'lovni kiriting")
     await PupilState.payment.set()
 
 
-@dp.message_handler(AdminFilter(), state=PupilState.payment)
+@dp.message_handler(AdminFilter(), state=PupilState.payment, content_types='text')
 async def get_payment(message: types.Message, state: FSMContext):
     await state.update_data(payment=message.text)
 
@@ -141,5 +142,16 @@ async def unconfirm(call: types.CallbackQuery, state: FSMContext):
     await call.message.answer("❗️ Bekor qilindi", reply_markup=menu)
     await state.finish()
 
+@dp.message_handler(AdminFilter(), state=PupilState.confirm)
+async def unknown__confirm(message: types.Message, state: FSMContext):
+    await message.answer("❗️ Iltimos, amalni bajaring!")
 
 
+
+@dp.message_handler(AdminFilter(), state=PupilState.group, content_types='any')
+@dp.message_handler(AdminFilter(), state=PupilState.block_2, content_types='any')
+@dp.message_handler(AdminFilter(), state=PupilState.block_1, content_types='any')
+@dp.message_handler(AdminFilter(), state=PupilState.full_name, content_types='any')
+@dp.message_handler(AdminFilter(), state=PupilState.payment, content_types='any')
+async def unknown__get_block_1(message: types.Message, state: FSMContext):
+    await message.answer("❗️ Iltimos, amalni bajaring!")
